@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/minkiele/minkiele/issues"
   },
-  "homepage": "https://github.com/minkiele/minkiele"
+  "homepage": "https://github.com/minkiele/minkiele",
+  "dependencies": {
+    "express": "^4.11.1"
+  }
 }
