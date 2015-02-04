@@ -1,33 +1,59 @@
 +function(){
-  
+
   function Beat(){
-    //Prebuild the buffer to avoid NaNs
-    this.buffer = [0, 0];
-    this.currentIndex = 0;
-    
-    this.addBeat = function(){
-      this.buffer[this.currentIndex] = new Date().getTime();
-      this.currentIndex = (this.currentIndex + 1) % this.buffer.length;
-    };
-    
+
+    this.avgBufferSize = 10;
+    this.timeBuffer = null;
+
     this.getBeatLength = function(){
-      return Math.abs(this.buffer[1] - this.buffer[0]);
+      var now = new Date().getTime(),
+          beatLength;
+      if(this.timeBuffer !== null){
+        beatLength = now - this.timeBuffer;
+        this.timeBuffer = now;
+        return beatLength;
+      }else{
+        this.timeBuffer = now;
+        throw 'Beat not yet configured, you should discard this result';
+      }
     };
-    
+
+    this.addBeat = function(){
+      try{
+        this.avgBuffer[this.avgBufferIndex] = this.getBeatLength();
+        this.avgBufferIndex = (this.avgBufferIndex + 1) % this.avgBufferSize;
+      }catch(exc){
+        console.log(exc);
+      }
+    };
+
     this.getBpm = function(){
-      return 60 * 1000 / this.getBeatLength();
+      var i, avg = 0;
+      for(i = 0; i < this.avgBuffer.length; i++){
+        avg += this.avgBuffer[i];
+      }
+
+      avg /= this.avgBuffer.length;
+
+      return 60 * 1000 / avg;
     };
     
+    this.reset = function(){
+      this.avgBuffer = [];
+      this.avgBufferIndex = 0;
+    };
+    
+    this.reset();
+
   }
-  
+
   angular.module('beatFinder', [])
     .service('beat', Beat)
     .controller('BeatController', ['$scope', 'beat', function($scope, beat){
       $scope.bpm = 0;
       $scope.updateBpm = function(){
         beat.addBeat();
-        //AVG WITH THE OLD VALUE
-        $scope.bpm = ($scope.bpm + beat.getBpm()) / 2;
+        $scope.bpm = beat.getBpm();
       };
     }]);
 }();
