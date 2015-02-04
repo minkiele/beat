@@ -1,12 +1,13 @@
 +function(){
   
   function Beat(){
-    this.buffer = [];
+    //Prebuild the buffer to avoid NaNs
+    this.buffer = [0, 0];
     this.currentIndex = 0;
     
     this.addBeat = function(){
       this.buffer[this.currentIndex] = new Date().getTime();
-      this.currentIndex = (this.currentIndex + 1) % 2;
+      this.currentIndex = (this.currentIndex + 1) % this.buffer.length;
     };
     
     this.getBeatLength = function(){
@@ -22,10 +23,11 @@
   angular.module('beatFinder', [])
     .service('beat', Beat)
     .controller('BeatController', ['$scope', 'beat', function($scope, beat){
-      $scope.bpm = NaN;
+      $scope.bpm = 0;
       $scope.updateBpm = function(){
         beat.addBeat();
-        $scope.bpm = beat.getBpm();
+        //AVG WITH THE OLD VALUE
+        $scope.bpm = ($scope.bpm + beat.getBpm()) / 2;
       };
     }]);
 }();
