@@ -30,5 +30,4 @@ node_modules
 .DS_Store
 **/._*
 
-bower_dependencies
-
+bower_components
